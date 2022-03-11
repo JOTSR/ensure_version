@@ -9,6 +9,11 @@ Use [semver](https://deno.land/x/semver) to check versions
 
 ## Usage
 
+Import
+```ts
+import ensureVersion from "https://deno.land/x/ensure_version@1.0.2/mod.ts";
+```
+
 Simply add in your mod.ts
 ```ts
 //some semver version constraint
