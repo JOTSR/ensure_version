@@ -5,7 +5,7 @@ Simple version ensurer for [Deno](https://deno.land) that check {deno, typescrip
 Use [semver](https://deno.land/x/semver) to check versions
 
 [![Tags](https://img.shields.io/github/v/release/JOTSR/ensure_version)](https://github.com/JOTSR/ensure_version/releases)
-[![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/raw.githubusercontent.com/JOTSR/ensure_version/main/mod.ts))
+[![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/raw.githubusercontent.com/JOTSR/ensure_version/main/mod.ts)
 
 ## Usage
 

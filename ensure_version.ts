@@ -9,7 +9,7 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
  * Log warn(minor)/info(patch) if version is version is valid but can be updated
  * 
  * @param {string} version Required version (semver syntax) of Deno
- * @param {boolean} logs Enable log if update minor and patch is possible (default: true)
+ * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
@@ -40,7 +40,7 @@ export function ensureVersion(version: string, logs?: boolean): void
  * Log warn(minor)/info(patch) if version is version is valid but can be updated
  * 
  * @param {Deno.version} version  Required version (semver syntax) of at least ones of Deno, Typescript, V8
- * @param {boolean} logs Enable log if update minor and patch is possible (default: true)
+ * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
