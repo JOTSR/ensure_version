@@ -11,7 +11,7 @@ Use [semver](https://deno.land/x/semver) to check versions
 
 Import
 ```ts
-import ensureVersion from "https://deno.land/x/ensure_version@1.0.2/mod.ts";
+import ensureVersion from "https://deno.land/x/ensure_version/mod.ts";
 ```
 
 Simply add in your mod.ts
