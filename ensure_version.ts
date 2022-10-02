@@ -93,7 +93,7 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
     for (const _key in Deno.version) {
         const key  = _key as keyof Version
         const origin = Deno.version[key].split('.').slice(0, 3).join('.')
-        const required = version[key]
+        const required = version[key]?.split('.').slice(0, 3).join('.')
         
         if(required === undefined) continue
 
