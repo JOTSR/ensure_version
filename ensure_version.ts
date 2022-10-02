@@ -1,3 +1,4 @@
+import { basename } from 'https://deno.land/std@0.158.0/path/win32.ts'
 import { semver } from './deps.ts'
 
 export type Version = typeof Deno.version
@@ -10,6 +11,7 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
  * 
  * @param {string} version Required version (semver syntax) of Deno
  * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
+ * @param {string} importerUrl If defined write the importer script base name in log and error message
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
@@ -33,7 +35,7 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
  * //pass
  * ```
  */
-export function ensureVersion(version: string, logs?: boolean): void
+export function ensureVersion(version: string, logs?: boolean, importerUrl?: string): void
 
 /**
  * Throw if required version of Deno is not validate
@@ -41,6 +43,7 @@ export function ensureVersion(version: string, logs?: boolean): void
  * 
  * @param {Deno.version} version  Required version (semver syntax) of at least ones of Deno, Typescript, V8
  * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
+ * @param {string} importerUrl If defined write the importer script base name in log and error message
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
@@ -74,9 +77,9 @@ export function ensureVersion(version: string, logs?: boolean): void
  * //pass
  * ```
  */
-export function ensureVersion(version: AtLeastOne<Version>, logs?: boolean): void
+export function ensureVersion(version: AtLeastOne<Version>, logs?: boolean, importerUrl?: string): void
 
-export function ensureVersion(version: AtLeastOne<Version> | string, logs = true): void {
+export function ensureVersion(version: AtLeastOne<Version> | string, logs = true, importerUrl?: string): void {
     
     if (version === undefined) {
         throw new TypeError(`"version" : [${version}] is not a valid semver`)
@@ -90,6 +93,8 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
         throw new TypeError(`version "${JSON.stringify(version)}" should have at least one of these keys [${Object.keys(Deno.version).join(', ')}]`)
     }
 
+    const importerName = importerUrl ? ` by ${importerUrl}` : ''
+
     for (const _key in Deno.version) {
         const key  = _key as keyof Version
         const origin = Deno.version[key].split('.').slice(0, 3).join('.')
@@ -98,16 +103,16 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
         if(required === undefined) continue
 
         if(!semver.satisfies(origin, required)) {
-            throw new RangeError(`${key}@${origin} not match version ${version[key]} required by ${import.meta.url}`)
+            throw new RangeError(`${key}@${origin} not match version ${version[key]} required${importerName}`)
         }
 
         if(maxMinor(origin, required) && logs) {
-            console.warn(`%c${key}@${origin} not match maximum minor ${version[key]} required by ${import.meta.url}, ${key} minor can be upgraded`, 'color: yellow')
+            console.warn(`%c${key}@${origin} not match maximum minor ${version[key]} required${importerName}, ${key} minor can be upgraded`, 'color: yellow')
             continue
         }
 
         if(maxPatch(origin, required) && logs) {
-            console.info(`%c${key}@${origin} not match maximum patch ${version[key]} required by ${import.meta.url}, ${key} patch can be upgraded`, 'color: grey')
+            console.info(`%c${key}@${origin} not match maximum patch ${version[key]} required${importerName}, ${key} patch can be upgraded`, 'color: grey')
         }
     }
 }
