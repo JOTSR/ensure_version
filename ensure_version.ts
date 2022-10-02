@@ -1,7 +1,12 @@
-import { basename } from 'https://deno.land/std@0.158.0/path/win32.ts'
 import { semver } from './deps.ts'
 
 export type Version = typeof Deno.version
+
+type ImportMeta = {
+    url: string,
+    main: boolean,
+    resolve: (path: string) => string
+}
 
 type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
 
@@ -11,7 +16,7 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
  * 
  * @param {string} version Required version (semver syntax) of Deno
  * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
- * @param {string} importerUrl If defined write the importer script base name in log and error message
+ * @param {ImportMeta} importer Accept ```import.meta```, if defined write the importer script url in log and error message
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
@@ -34,8 +39,12 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
  * ensureVersion('1.5.2 || 1.8.0 - 2.0.0')
  * //pass
  * ```
+ * Log importer url in log and messages error
+ * ```ts
+ * ensureVersion('1.26', true, import.meta)
+ * ```
  */
-export function ensureVersion(version: string, logs?: boolean, importerUrl?: string): void
+export function ensureVersion(version: string, logs?: boolean, importer?: ImportMeta): void
 
 /**
  * Throw if required version of Deno is not validate
@@ -43,7 +52,7 @@ export function ensureVersion(version: string, logs?: boolean, importerUrl?: str
  * 
  * @param {Deno.version} version  Required version (semver syntax) of at least ones of Deno, Typescript, V8
  * @param {boolean=} logs Enable log if update minor and patch is possible (default: true)
- * @param {string} importerUrl If defined write the importer script base name in log and error message
+ * @param {ImportMeta} importer Accept ```import.meta```, if defined write the importer script url in log and error message
  * @throws {TypeError} Semver parse error
  * @throws {RangeError} Version mismatch
  * 
@@ -76,10 +85,14 @@ export function ensureVersion(version: string, logs?: boolean, importerUrl?: str
  * ensureVersion(required)
  * //pass
  * ```
+ * Log importer url in log and messages error
+ * ```ts
+ * ensureVersion('1.26', true, import.meta)
+ * ```
  */
-export function ensureVersion(version: AtLeastOne<Version>, logs?: boolean, importerUrl?: string): void
+export function ensureVersion(version: AtLeastOne<Version>, logs?: boolean, importer?: ImportMeta): void
 
-export function ensureVersion(version: AtLeastOne<Version> | string, logs = true, importerUrl?: string): void {
+export function ensureVersion(version: AtLeastOne<Version> | string, logs = true, importer?: ImportMeta): void {
     
     if (version === undefined) {
         throw new TypeError(`"version" : [${version}] is not a valid semver`)
@@ -93,7 +106,7 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
         throw new TypeError(`version "${JSON.stringify(version)}" should have at least one of these keys [${Object.keys(Deno.version).join(', ')}]`)
     }
 
-    const importerName = importerUrl ? ` by ${importerUrl}` : ''
+    const importerName = importer ? ` by ${importer.url}` : ''
 
     for (const _key in Deno.version) {
         const key  = _key as keyof Version
