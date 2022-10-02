@@ -115,7 +115,7 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
 function maxMinor(originVersion: string, requiredVersion: string): boolean {
     const originMajor = semver.major(originVersion)
 
-    const originMinors = range(semver.minor(originVersion), 100)
+    const originMinors = range(semver.minor(originVersion), 500)
     const originVersions = originMinors.map(originMinor => `${originMajor}.${originMinor}.0`)
 
     return Boolean(semver.maxSatisfying(originVersions, requiredVersion))
