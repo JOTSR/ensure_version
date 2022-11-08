@@ -2,7 +2,7 @@
 
 Simple version ensurer for [Deno](https://deno.land) that check {deno, typescript, v8} version for users of your module and prevent them from incompatibylities error.
 
-Use [semver](https://deno.land/x/semver) to check versions
+Use [semver](https://deno.land/std/semver) to check versions
 
 [![Tags](https://img.shields.io/github/v/release/JOTSR/ensure_version)](https://github.com/JOTSR/ensure_version/releases)
 [![deno doc](https://doc.deno.land/badge.svg)](https://doc.deno.land/https/raw.githubusercontent.com/JOTSR/ensure_version/main/mod.ts)
@@ -14,7 +14,7 @@ Import
 import ensureVersion from "https://deno.land/x/ensure_version/mod.ts";
 ```
 
-Simply add in your mod.ts
+Simply add it in your mod.ts
 ```ts
 //some semver version constraint
 ensureVersion(">1.18.0")
@@ -22,7 +22,8 @@ ensureVersion(">1.18.0")
 ensureVersion({ deno: "1.19.2", v8: "9.9.115.7", typescript: "4.5.2" })
 ```
 
-Some examples
+## Examples
+
 ```ts
  // Deno.version.deno = "1.9.4"
  ensureVersion(">=1.8.0")
@@ -37,8 +38,8 @@ Some examples
  //pass
 
  // Deno.version = {deno: "1.9.4", typescript: "4.5.2", v8: "9.9.115.7"}
- const required = {deno: ">=1.8.0", false}
- ensureVersion(required)
+ const required = {deno: ">=1.8.0"}
+ ensureVersion(required, false)
  //no logs
 
  // Deno.version = {deno: "1.9.4", typescript: "4.5.2", v8: "9.9.115.7"}
@@ -59,4 +60,4 @@ Some examples
 
 All the modules are exposed in `mod.ts`
 
-[Documentation](https://doc.deno.land/https/https/deno.land/x/ensure_version/mod.ts)
+[Documentation](https://doc.deno.land/https/deno.land/x/ensure_version/mod.ts)
