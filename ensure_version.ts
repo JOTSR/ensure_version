@@ -1,4 +1,4 @@
-import { semver } from './deps.ts'
+import { releases, semver } from './deps.ts'
 
 export type Version = typeof Deno.version
 
@@ -9,6 +9,11 @@ type ImportMeta = {
 }
 
 type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
+
+const denoVersions = [...releases.text.matchAll(/### (\d+)\.(\d+)\.(\d+)/g) as string[][]].map(line => {
+    const [ major, minor, patch ] = line.slice(1).map(number => parseInt(number))
+    return { major, minor, patch } as const
+})
 
 /**
  * Throw if required version of Deno is not validate
@@ -114,41 +119,28 @@ export function ensureVersion(version: AtLeastOne<Version> | string, logs = true
         const required = version[key]?.split('.').slice(0, 3).join('.')
         
         if(required === undefined) continue
+        //TODO Get typescript and v8 last versions depending of deno version
+        if (key === 'typescript' || key === 'v8') continue
 
         if(!semver.satisfies(origin, required)) {
             throw new RangeError(`${key}@${origin} not match version ${version[key]} required${importerName}`)
         }
-
-        if(maxMinor(origin, required) && logs) {
-            console.warn(`%c${key}@${origin} not match maximum minor ${version[key]} required${importerName}, ${key} minor can be upgraded`, 'color: yellow')
+        
+        const maxOrigin = maxOriginVersion(required)
+        if(semver.minor(maxOrigin) !== semver.minor(origin) && logs) {
+            console.warn(`%c${key}@${origin} not match maximum minor ${required} required${importerName}, ${key} minor can be upgraded to ${maxOrigin}`, 'color: yellow')
             continue
         }
 
-        if(maxPatch(origin, required) && logs) {
-            console.info(`%c${key}@${origin} not match maximum patch ${version[key]} required${importerName}, ${key} patch can be upgraded`, 'color: grey')
+        if(semver.patch(maxOrigin) !== semver.patch(origin) && logs) {
+            console.info(`%c${key}@${origin} not match maximum patch ${required} required${importerName}, ${key} patch can be upgraded to ${maxOrigin}`, 'color: grey')
         }
     }
 }
 
-function maxMinor(originVersion: string, requiredVersion: string): boolean {
-    const originMajor = semver.major(originVersion)
+function maxOriginVersion(requiredVersion: string): string {
+    const originVersions = denoVersions
+        .map(version => `${version.major}.${version.minor}.${version.patch}`)
 
-    const originMinors = range(semver.minor(originVersion), 500)
-    const originVersions = originMinors.map(originMinor => `${originMajor}.${originMinor}.0`)
-
-    return Boolean(semver.maxSatisfying(originVersions, requiredVersion))
-}
-
-function maxPatch(originVersion: string, requiredVersion: string): boolean {
-    const originMajor = semver.major(originVersion)
-    const originMinor = semver.minor(originVersion)
-
-    const originPatchs = range(semver.patch(originVersion), 500)
-    const originVersions = originPatchs.map(originPatch => `${originMajor}.${originMinor}.${originPatch}`)
-
-    return Boolean(semver.maxSatisfying(originVersions, requiredVersion))
-}
-
-function range(min: number, max: number): number[] {
-    return new Array(max - min).fill(1).map((_, i) => i + min + 1)
+    return semver.maxSatisfying(originVersions, requiredVersion) ?? requiredVersion
 }
